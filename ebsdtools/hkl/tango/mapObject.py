@@ -19,14 +19,16 @@ __copyright__ = "Copyright (c) 2010 Philippe T. Pinard"
 __license__ = "GPL v3"
 
 # Standard library modules.
-import Tkinter
+#import tkinter
+import tkinter
 
 
 # Third party modules.
 from PIL import Image, ImageTk
 
 # Local modules.
-import ebsdtools.hkl.tango.colors as colors
+#import ebsdtools.hkl.tango.colors as colors
+import colors
 
 # Globals and constants variables.
 
@@ -111,15 +113,15 @@ class mapTypes:
 
         return (r, g, b)
 
-class map(Tkinter.Frame):
+class map(tkinter.Frame):
     def __init__(self, master, size, viewSelection=True):
         """
-        :class:`Tkinter.Frame` containing an image representing an EBSD map
+        :class:`tkinter.Frame` containing an image representing an EBSD map
         
         ..note:: The position of the selected pixel can be found in the class variable ``outputSelection``
         
         :arg master: root of the application
-        :type master: :class:`Tkinter.Tk` or :class:`Tkinter.TopLevel` or :class:`Tkinter.Frame`
+        :type master: :class:`tkinter.Tk` or :class:`tkinter.TopLevel` or :class:`tkinter.Frame`
         
         :arg size: initial size of the map (width, height)
         :type size: tuple
@@ -132,7 +134,7 @@ class map(Tkinter.Frame):
         self.canvasSize = (self.imageSize[0] * self.scaleFactor, self.imageSize[1] * self.scaleFactor)
         self.root = master
         self.viewSelectionCursor = viewSelection
-        self.outputSelection = Tkinter.Variable()
+        self.outputSelection = tkinter.Variable()
         self.ctf = None
 
         #selX and selY are the position selected on teh canvas
@@ -143,11 +145,11 @@ class map(Tkinter.Frame):
 
         self.outputSelection.set((self.selX, self.selY))
 
-        Tkinter.Frame.__init__(self, master=master, bg='black')
+        tkinter.Frame.__init__(self, master=master, bg='black')
 
         self.imageMap = Image.new('RGB', self.canvasSize)
         self.objectMap = ImageTk.PhotoImage(self.imageMap)
-        self.lblMap = Tkinter.Label(self, image=self.objectMap, bd=1, fg='white')
+        self.lblMap = tkinter.Label(self, image=self.objectMap, bd=1, fg='white')
         self.lblMap.pack(side='left', expand='no', anchor='nw')
 
         self.updateSelection()
@@ -217,7 +219,7 @@ class map(Tkinter.Frame):
 
         self.lblMap.pack_forget()
         self.objectMap = ImageTk.PhotoImage(self.imageMap)
-        self.lblMap = Tkinter.Label(self, image=self.objectMap, bd=1, fg='white')
+        self.lblMap = tkinter.Label(self, image=self.objectMap, bd=1, fg='white')
         self.lblMap.pack(side='left', expand='no', anchor='nw')
 
         self.bindAll()
@@ -337,7 +339,7 @@ class App:
         mapFrame = map(root, (50, 50))
         mapFrame.pack(fill='both', expand='yes')
 
-        lblInfo = Tkinter.Label(master, textvariable=mapFrame.outputSelection)
+        lblInfo = tkinter.Label(master, textvariable=mapFrame.outputSelection)
         lblInfo.pack()
 
         t = mapTypes(ctf)
@@ -346,12 +348,12 @@ class App:
     #    self.f.drawMap(t.bandContrast(), (self.ctf.getWidth(), self.ctf.getHeight()))
 
     def action(self, *event):
-        print 'action'
+        print('action')
 
 if __name__ == '__main__':
     import ebsdtools.hkl.tango.ctfFile as ctfFile
 
-    root = Tkinter.Tk()
+    root = tkinter.Tk()
     ctf = ctfFile.ctf('testdata/test_ctfFile.ctf')
 
     app = App(root, ctf)

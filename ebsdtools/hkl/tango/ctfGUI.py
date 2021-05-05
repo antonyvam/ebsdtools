@@ -21,22 +21,24 @@ __license__ = "GPL v3"
 # Standard library modules.
 import os
 import sys
-import Tkinter
-import tkFileDialog
-import tkMessageBox
-import ConfigParser
+import tkinter
+import tkinter.filedialog
+import tkinter.messagebox
+import configparser
 import platform
 
 # Third party modules.
 from PIL import Image, ImageTk
 
 # Local modules.
-import tkintertools.Pmw.Pmw as Pmw
+import Pmw
 
-from guitools.py2exe import get_main_dir, main_is_frozen
+#from guitools.py2exe import get_main_dir, main_is_frozen
+#import ebsdtools.hkl.tango.ctfFile as ctfFile
+#import ebsdtools.hkl.tango.mapObject as mapObject
 
-import ebsdtools.hkl.tango.ctfFile as ctfFile
-import ebsdtools.hkl.tango.mapObject as mapObject
+import ctfFile
+import mapObject
 
 def readConfiguration(configfilepath='ctfGUI.ini'):
     """
@@ -45,9 +47,9 @@ def readConfiguration(configfilepath='ctfGUI.ini'):
     The configuration file contains the initial directory to load and save files
     """
     if os.path.exists(configfilepath):
-        parser = ConfigParser.SafeConfigParser()
+        parser = configparser.ConfigParser()
         file = open(configfilepath, 'r')
-        parser.readfp(file)
+        parser.read_file(file)
         file.close()
 
         config = {}
@@ -62,7 +64,7 @@ def readConfiguration(configfilepath='ctfGUI.ini'):
 
         return config
     else:
-        tkMessageBox.showwarning(title='File not found',
+        tkinter.messagebox.showwarning(title='File not found',
                                  message='Could not found ' + str(configfilepath) + ' in the root directory. The default values will be used')
 
 class App:
@@ -71,7 +73,7 @@ class App:
         GUI application to visualize ctf file
         
         :arg master: root of the application
-        :type master: :class:`Tkinter.Tk` or :class:`Tkinter.TopLevel`
+        :type master: :class:`tkinter.Tk` or :class:`tkinter.TopLevel`
         
         :arg windowSize: initial window size for the map (width, height)
         :type windowSize: tuple
@@ -91,16 +93,16 @@ class App:
 
         #The map type corresponds to what information is displayed from the EBSD map
         self.mapType = None
-        self.mapTypeValue = Tkinter.StringVar()
+        self.mapTypeValue = tkinter.StringVar()
 
-        self.zoomValue = Tkinter.StringVar()
+        self.zoomValue = tkinter.StringVar()
 
         #Track which pixel is selected
-        self.pixelSelected = Tkinter.StringVar()
-        self.pixelSelectedText = Tkinter.StringVar()
-        self.pixelSelectedInfoText = Tkinter.StringVar()
+        self.pixelSelected = tkinter.StringVar()
+        self.pixelSelectedText = tkinter.StringVar()
+        self.pixelSelectedInfoText = tkinter.StringVar()
 
-        self.filepath = Tkinter.StringVar()
+        self.filepath = tkinter.StringVar()
         self.currentLoadDirectory = loadDir
         self.currentSaveDirectory = saveDir
 
@@ -108,49 +110,49 @@ class App:
 
         self.ctf = None
 
-        frmButtons = Tkinter.Frame(master)
+        frmButtons = tkinter.Frame(master)
         frmButtons.pack(side='top', fill='x', expand='no', anchor='n')
 
-        btnLoad = Tkinter.Button(frmButtons, text="Load", command=self.load)
+        btnLoad = tkinter.Button(frmButtons, text="Load", command=self.load)
         btnLoad.pack(side='left', expand='yes', fill='x')
 
-        btnSave = Tkinter.Button(frmButtons, text="Save Pattern", command=self.savePatt)
+        btnSave = tkinter.Button(frmButtons, text="Save Pattern", command=self.savePatt)
         btnSave.pack(side='left', expand='yes', fill='x')
 
-        btnExit = Tkinter.Button(frmButtons, text="Exit", command=self.exit)
+        btnExit = tkinter.Button(frmButtons, text="Exit", command=self.exit)
         btnExit.pack(side='left', expand='yes', fill='x')
 
-        frmOptions = Tkinter.Frame(master)
+        frmOptions = tkinter.Frame(master)
         frmOptions.pack(side='top', fill='x', expand='no', anchor='n')
 
-        lblFilename = Tkinter.Label(frmOptions, textvariable=self.filepath)
+        lblFilename = tkinter.Label(frmOptions, textvariable=self.filepath)
         lblFilename.pack(side='top', fill='x', expand='yes', anchor='w')
 
-        frmPatternRoot = Tkinter.Frame(frmOptions)
+        frmPatternRoot = tkinter.Frame(frmOptions)
         frmPatternRoot.pack(side='top', fill='x', expand='yes', anchor='w')
 
-        lblPatternRoot = Tkinter.Label(frmPatternRoot
+        lblPatternRoot = tkinter.Label(frmPatternRoot
                                       , text='Images Directory'
                                       , justify='left')
         lblPatternRoot.pack(side='left', anchor='nw', expand='no')
 
-        self.varPatternRoot = Tkinter.StringVar()
+        self.varPatternRoot = tkinter.StringVar()
 
-        txtPatternRoot = Tkinter.Entry(frmPatternRoot
+        txtPatternRoot = tkinter.Entry(frmPatternRoot
                                            , textvariable=self.varPatternRoot
                                            , width=80)
         txtPatternRoot.pack(side='left', anchor='nw', fill='x', expand='yes')
 
-        #    btnPatternRootChange = Tkinter.Button(frmPatternRoot
+        #    btnPatternRootChange = tkinter.Button(frmPatternRoot
         #                                              , text='Change...'
         #                                              , command=lambda func=self.btnPatternRootChange_Command: func())
         #    btnPatternRootChange.pack(side='left', anchor='nw', fill='x', expand='no')
 
-        frmSelection = Tkinter.Frame(master)
+        frmSelection = tkinter.Frame(master)
         frmSelection.pack(side='top', fill='x', expand='no', anchor='n')
 
         comboType = Pmw.OptionMenu(frmSelection
-                               , labelpos=Tkinter.W
+                               , labelpos=tkinter.W
                                , label_text='Map Type:'
                                , menubutton_textvariable=self.mapTypeValue
                                , items=('All Euler', 'Band Contrast', 'Phase')
@@ -158,20 +160,20 @@ class App:
         comboType.pack(side='left', fill='x', expand='yes', anchor='w')
 
         comboType = Pmw.OptionMenu(frmSelection
-                               , labelpos=Tkinter.W
+                               , labelpos=tkinter.W
                                , label_text='Zoom:'
                                , menubutton_textvariable=self.zoomValue
                                , items=('1X', '2X', '5X', '10X', '20X', '50X')
                                , initialitem='1X')
         comboType.pack(side='left', fill='x', expand='yes', anchor='w')
 
-        frmInfos = Tkinter.Frame(master)
+        frmInfos = tkinter.Frame(master)
         frmInfos.pack(side='top', fill='x', expand='no', anchor='n')
 
-        lblSelectedPixel = Tkinter.Label(frmInfos, textvariable=self.pixelSelectedText)
+        lblSelectedPixel = tkinter.Label(frmInfos, textvariable=self.pixelSelectedText)
         lblSelectedPixel.pack(side='top', fill='x', expand='yes', anchor='n')
 
-        lblSelectedPixelInfo = Tkinter.Label(frmInfos, textvariable=self.pixelSelectedInfoText)
+        lblSelectedPixelInfo = tkinter.Label(frmInfos, textvariable=self.pixelSelectedInfoText)
         lblSelectedPixelInfo.pack(side='top', fill='x', expand='yes', anchor='n')
 
         self.map = mapObject.map(master, windowSize)
@@ -180,9 +182,9 @@ class App:
         self.map.pack(side='top', fill='both', expand='yes', anchor='nw')
 
         self.pattImage = Image.new('RGB', self.pattSize)
-        pattFrame = Tkinter.Frame(master, bg='black')
+        pattFrame = tkinter.Frame(master, bg='black')
         self.pattObject = ImageTk.PhotoImage(self.pattImage)
-        lblPatt = Tkinter.Label(pattFrame, image=self.pattObject, bd=1, fg='white')
+        lblPatt = tkinter.Label(pattFrame, image=self.pattObject, bd=1, fg='white')
         lblPatt.pack(side='left', anchor='nw')
         pattFrame.pack(side='top', fill='x', expand='no', anchor='nw')
 
@@ -201,7 +203,7 @@ class App:
         :type file: str
         """
         if file == None:
-            file = tkFileDialog.askopenfile(parent=self.root, initialdir=self.currentLoadDirectory, mode='r', filetypes=[('Channel Text File', '*.ctf')], title='Choose a file')
+            file = tkinter.filedialog.askopenfile(parent=self.root, initialdir=self.currentLoadDirectory, mode='r', filetypes=[('Channel Text File', '*.ctf')], title='Choose a file')
             if file != None:
                 file = file.name
 
@@ -222,7 +224,7 @@ class App:
         Save the selected pattern.
         A directory dialog is displayed to select where to save the pattern.
         """
-        dir = tkFileDialog.askdirectory(parent=self.root, initialdir=self.currentSaveDirectory, title='Please select a directory')
+        dir = tkinter.filedialog.askdirectory(parent=self.root, initialdir=self.currentSaveDirectory, title='Please select a directory')
 
         if dir != '':
             self.currentSaveDirectory = dir
@@ -241,7 +243,7 @@ class App:
         Change the directory where the pattern images are located.
         The default value comes from the ctf file.
         """
-        dir = tkFileDialog.askdirectory(parent=self.root, initialdir=self.varPatternRoot.get(), title='Please select a directory')
+        dir = tkinter.filedialog.askdirectory(parent=self.root, initialdir=self.varPatternRoot.get(), title='Please select a directory')
 
         if dir != '':
             self.varPatternRoot.set(dir)
@@ -312,20 +314,24 @@ class App:
             self.pattImage = newPattImage
 
 if __name__ == '__main__':
-    basepath = get_main_dir()
+#    basepath = get_main_dir()
 
-    if main_is_frozen():
-        frozenpath = os.path.join(basepath, 'ebsdtools', 'hkl', 'tango')
-    else:
-        frozenpath = basepath
+#    if main_is_frozen():
+#        frozenpath = os.path.join(basepath, 'ebsdtools', 'hkl', 'tango')
+#    else:
+#        frozenpath = basepath
 
+
+    basepath = 'C:\\Users\\Antony\\Documents\\GitHub\\ebsdtools\\ebsdtools\\hkl\\tango\\'
+    frozenpath = basepath
+	
     ini_path = os.path.join(frozenpath, 'ctfGUI.ini')
     ico_path = os.path.join(frozenpath, 'ctf.ico')
     colors_path = os.path.join(frozenpath, 'colors.csv')
 
     config = readConfiguration(configfilepath=ini_path)
 
-    root = Tkinter.Tk()
+    root = tkinter.Tk()
     root.title('pyTango')
     root.resizable(0, 0)
     if platform.system() == 'Windows':

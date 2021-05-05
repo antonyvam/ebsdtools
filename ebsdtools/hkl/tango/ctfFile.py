@@ -702,4 +702,4 @@ class ctf:
 
 if __name__ == '__main__': #pragma: no cover
     ctf = ctf('test_ctfFile.ctf')
-    print len(ctf.getPixelArray(key='bc', phase=('=', 2), bc=('>', 50)))
+    print(len(ctf.getPixelArray(key='bc', phase=('=', 2), bc=('>', 50))))

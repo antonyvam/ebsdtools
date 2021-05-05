@@ -78,4 +78,4 @@ def formatFortran():
 if __name__ == '__main__':
     colors = colorsList()
     for i in range(10):
-        print colors.getColorRGB(i), colors.getColorName(i)
+        print(colors.getColorRGB(i), colors.getColorName(i))
